@@ -23,8 +23,8 @@ os.environ["PL_API_KEY"] = "63b9f723802a491391fbac613f954916"
 #Search parametrs
 latitude = 10.542192
 longitude = 105.18792
-start_date = "2021-01-01"
-end_date = "2021-12-31"
+start_date = "2022-05-28"
+end_date = "2022-09-28"
 
 #AOI
 bbox = [longitude - 0.05, 
@@ -43,22 +43,45 @@ search = client.search(
     collections=["sentinel-1-grd"],
     bbox=bbox,
     datetime=f"{start_date}/{end_date}",
-    limit=500, 
 )
 
-items = list(search.get_items())
+items = search.item_collection()
+print(f"Returned {len(items)} Items")
 
-print(f"Found {len(items)} items")
 
-# Get data
+import datetime
+selected_item = None
+target_date = datetime.date(2022, 7, 21)
+#try_2
 for item in items:
-    print(f"Processing: {item.id}")
+    a_date = item.datetime.date()
+    if a_date == target_date:
+        selected_item = item
+        break
+
+if selected_item is not None:
+    print(f"Processing: {selected_item.id}")
     # Access the VH (Vertical Transmit, Horizontal Receive)
-    asset = item.assets["vh"]
+    asset = selected_item.assets["vh"]
     signed_asset = sign(asset)
-    # read the data ig
+
+    # Read the data
     with rasterio.open(signed_asset.href) as src:
         data = src.read()
-        print(data)
+
+    # Calculate the mean backscatter coefficient
+    mean_backscatter_coefficient = np.mean(data)
+    #calculate 
+    sigma0_data = 10 * np.log10(data.astype(np.float32) ** 2)
+    print(f"Mean backscatter coefficient: {mean_backscatter_coefficient:.4f}")
+    print(f"backscatter coefficients (sigma0): {sigma0_data:.4f}")
+
+else:
+    print("No Sentinel-1 data found for the specified date.")
 
 
+"""
+check available data->
+for item in items:
+    print(item.datetime.date())
+"""
