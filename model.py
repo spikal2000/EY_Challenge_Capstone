@@ -15,7 +15,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
 
 
-data = pd.read_csv("new_crop_data.csv")
+data = pd.read_csv("newshit.csv")
 #replace District
 data['District'].unique()
 district_mapping = {'Chau_Phu': 0, 'Chau_Thanh': 1, 'Thoai_Son': 2}
@@ -42,7 +42,7 @@ ExtraTreesRegressor
 """
 
 def ExtraTreesR(X_train, y_train, n_estimators=100, max_depth=None, min_samples_split=2,max_features='auto',
-                min_samples_leaf=2, bootstrap=False):
+                min_samples_leaf=2, bootstrap=False, warm_start=False):
 # def ExtraTreesR(X_train, y_train):
     
     regressor = ExtraTreesRegressor(n_estimators=n_estimators, 
@@ -50,7 +50,8 @@ def ExtraTreesR(X_train, y_train, n_estimators=100, max_depth=None, min_samples_
                                     min_samples_split=min_samples_split,
                                     max_features=max_features,
                                     min_samples_leaf = min_samples_leaf,
-                                    bootstrap=bootstrap
+                                    bootstrap=bootstrap,
+                                    warm_start=warm_start
                                     )
     {'friedman_mse', 'absolute_error', 'squared_error', 'poisson'}
    
@@ -89,6 +90,16 @@ def ExtraTreesR(X_train, y_train, n_estimators=100, max_depth=None, min_samples_
    
     
     return regressor
+
+def ExtraTreesR_feature_selection(X_train, y_train):
+    regressor = ExtraTreesRegressor(n_estimators=100, max_depth=None, min_samples_split=2, max_features='auto', min_samples_leaf=2, bootstrap=False, warm_start=False)
+    regressor.fit(X_train, y_train)
+
+    feature_importances = regressor.feature_importances_
+    feature_importance_dict = dict(zip(X_train.columns, feature_importances))
+    feature_importance_dict_sorted = sorted(feature_importance_dict.items(), key=lambda item: item[1], reverse=True)
+
+    return feature_importance_dict_sorted
 
 
 """
@@ -167,7 +178,8 @@ model = ExtraTreesR(X_train, y_train,
                     min_samples_split=6,
                     max_features='auto',
                     min_samples_leaf=10,
-                bootstrap=True)
+                bootstrap=True,
+                warm_start=True)
 
 new_data = X_test[:4]
 y_new = y_test[:4]
@@ -175,4 +187,7 @@ predctions = model.predict(new_data)
 
 print("Actual:", y_new, "Predicted:", predctions)
 """
+feature_importances = ExtraTreesR_feature_selection(X_train, y_train)
+for feature, importance in feature_importances:
+    print(f"Feature: {feature}, Importance: {importance}")
 
