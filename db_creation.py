@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed May 31 10:05:11 2023
-
-@author: spika
-"""
-
 import mysql.connector
 from mysql.connector import errorcode
 import configparser
@@ -25,7 +18,7 @@ try:
 
     cursor.execute("CREATE DATABASE IF NOT EXISTS rice_db")
     cursor.execute("USE rice_db")   
-    
+
     query1 = """
     CREATE TABLE RiceCrop (
         id INT PRIMARY KEY,
@@ -59,10 +52,39 @@ try:
         FOREIGN KEY(main_id) REFERENCES RiceCrop(id)
     )
     """
+
+    query3 = """
+    CREATE TABLE NDVI (
+        id INT PRIMARY KEY,
+        ndvi_value FLOAT,
+        main_id INT,
+        FOREIGN KEY(main_id) REFERENCES RiceCrop(id)
+    )
+    """
+
+    query4 = """
+    CREATE TABLE WeatherParameters (
+        id INT PRIMARY KEY,
+        latitude FLOAT,
+        longitude FLOAT,
+        season VARCHAR(80),
+    """
+
+    parameters = ['tempmax', 'tempmin', 'temp', 'dew', 'humidity', 'precip', 
+                  'precipcover', 'windgust', 'windspeed', 'pressure', 'cloudcover', 
+                  'solarradiation', 'solarenergy', 'uvindex', 'SunlightDuration']
     
+    for param in parameters:
+        for i in range(1, 15):
+            query4 += f"{param}_section_{i} FLOAT,"
+    
+    query4 += "main_id INT, FOREIGN KEY(main_id) REFERENCES RiceCrop(id))"
+
     cursor.execute(query1)
     cursor.execute(query2)
-    
+    cursor.execute(query3)
+    cursor.execute(query4)
+
     cnx.commit()
     
 except mysql.connector.Error as err:
