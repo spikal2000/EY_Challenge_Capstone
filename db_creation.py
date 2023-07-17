@@ -21,7 +21,7 @@ try:
 
     query1 = """
     CREATE TABLE RiceCrop (
-        id INT PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         district VARCHAR(80),
         latitude FLOAT,
         longitude FLOAT,
@@ -35,7 +35,7 @@ try:
 
     query2 = """
     CREATE TABLE Sentinel1 (
-        id INT PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         min_vh FLOAT,
         min_vv FLOAT,
         max_vh FLOAT,
@@ -55,7 +55,7 @@ try:
 
     query3 = """
     CREATE TABLE NDVI (
-        id INT PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         ndvi_value FLOAT,
         main_id INT,
         FOREIGN KEY(main_id) REFERENCES RiceCrop(id)
@@ -64,7 +64,7 @@ try:
 
     query4 = """
     CREATE TABLE WeatherParameters (
-        id INT PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         latitude FLOAT,
         longitude FLOAT,
         season VARCHAR(80),
@@ -78,8 +78,10 @@ try:
         for i in range(1, 15):
             query4 += f"{param}_section_{i} FLOAT,"
     
-    query4 += "main_id INT, FOREIGN KEY(main_id) REFERENCES RiceCrop(id))"
-
+    query4 += "main_id INT, FOREIGN KEY(main_id) REFERENCES RiceCrop(id)"
+    
+    query4 += ")"
+    
     cursor.execute(query1)
     cursor.execute(query2)
     cursor.execute(query3)
